@@ -4,5 +4,5 @@ import asyncio
 
 if __name__ ==  '__main__':
     loop = asyncio.get_event_loop()
-    robot = Robot()
-    loop.run_until_complete(robot.main())
+    robot1 = Robot(1, 'ROB-735472934', 1, 17, 100)
+    loop.run_until_complete(robot1.main())

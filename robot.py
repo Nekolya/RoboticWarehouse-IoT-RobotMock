@@ -1,7 +1,41 @@
 import paho.mqtt.client as mqtt
 import asyncio
+import os.path
+import json
+
 
 class Robot():
+    
+    def __init__(self, id, model, status, location, charge):
+        
+        if os.path.exists('robots_data/data' + str(id) + '.json'):
+            
+            with open('robots_data/data' + str(id) + '.json', 'r') as f:
+                file_data = json.load(f)
+                self.data = {
+                    "id": file_data["id"],
+                    "model": file_data["model"],
+                    "status": file_data["status"],
+                    "target": file_data["target"],
+                    "location": file_data["location"],
+                    "charge": file_data["charge"],
+                    "products": file_data["products"]
+                }
+                
+                print('Already init')
+
+        self.data = {
+            "id": id,
+            "model": model,
+            "status": status,
+            "target": None,
+            "location": location,
+            "charge": charge,
+            "products": []}
+
+        with open('robots_data/data' + str(id) + '.json', 'w') as f:
+            json.dump(self.data, f)
+
 
     async def publish(self, client):
         while True:

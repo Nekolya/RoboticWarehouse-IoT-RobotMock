@@ -20,7 +20,7 @@ def on_connect(client, userdata, flags, rc):
 async def publish(client):
     while True:
         await asyncio.sleep(1)
-        client.publish("robots/tasks", 'You need to do that')
+        client.publish("robots/tasks", '[{1:[1,2,3,4], 2:[4,3,2,1]}]')
         print("published")
 
 async def connect(client):

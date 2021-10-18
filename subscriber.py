@@ -1,10 +1,8 @@
 import paho.mqtt.client as mqtt
+import time
+import asyncio
+from random import randint
 
-# This is the Subscriber
-
-def on_connect(client, userdata, flags, rc):
-  print("Connected with result code "+ str(rc))
-  client.subscribe("topic/test")
 
 def on_message(client, userdata, message):
 #   if message.payload.decode() == "Hello world!":
@@ -14,11 +12,30 @@ def on_message(client, userdata, message):
     # print("message retain flag=",message.retain)
     # print('userdata', userdata)
     # print('client', client)
-    
-client = mqtt.Client()
-client.connect("localhost",1883,60)
 
-client.on_connect = on_connect
-client.on_message = on_message
+def on_connect(client, userdata, flags, rc):
+    print("Connected with result code "+ str(rc))
+    client.subscribe("robots/data")
 
-client.loop_forever()
+async def publish(client):
+    while True:
+        await asyncio.sleep(1)
+        client.publish("robots/tasks", 'You need to do that')
+        print("published")
+
+async def connect(client):
+    client.connect_async("localhost",1883,60)
+    client.on_connect = on_connect
+    client.on_message = on_message
+    await client.loop_start()
+
+async def main():
+    client = mqtt.Client()
+    input_coroutines = [connect(client), publish(client)]
+    res = await asyncio.gather(*input_coroutines, return_exceptions=True)
+    print('Can i do somthing?')
+
+
+if __name__ ==  '__main__':
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())

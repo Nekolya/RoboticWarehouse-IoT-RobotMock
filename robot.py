@@ -1,13 +1,14 @@
 import paho.mqtt.client as mqtt
 import asyncio
-import os.path
+import os
 import json
 
 
 class Robot():
     
     def __init__(self, id, model, status, location, charge):
-        
+        self.client = mqtt.Client()
+
         if os.path.exists('robots_data/data' + str(id) + '.json'):
             
             with open('robots_data/data' + str(id) + '.json', 'r') as f:
@@ -24,6 +25,9 @@ class Robot():
                 
                 print('Already init')
 
+        if not os.path.exists('robots_data/'):
+            os.mkdir('robots_data/')
+
         self.data = {
             "id": id,
             "model": model,
@@ -37,13 +41,13 @@ class Robot():
             json.dump(self.data, f)
 
 
-    async def publish(self, client):
+    async def publish(self):
         while True:
-            await asyncio.sleep(10)
-            client.publish("robots/data", "Hello world!")
+            await asyncio.sleep(5)
+            self.client.publish("robots/data", json.dumps(self.data))
             print("published")
 
-    async def connect(self, client):
+    async def connect(self):
         def on_message(client, userdata, message):
         #   if message.payload.decode() == "Hello world!":
             print("message received", str(message.payload.decode("utf-8")))
@@ -58,13 +62,13 @@ class Robot():
             client.subscribe("robots/tasks")
 
         
-        client.connect_async("localhost",1883,60)
-        client.on_connect = on_connect
-        client.on_message = on_message
-        await client.loop_start()
+        
+        self.client.connect_async("localhost",1883,60)
+        self.client.on_connect = on_connect
+        self.client.on_message = on_message
+        await self.client.loop_start()
 
     async def main(self):
-        client = mqtt.Client()
-        input_coroutines = [self.connect(client), self.publish(client)]
+        input_coroutines = [self.connect(), self.publish()]
         res = await asyncio.gather(*input_coroutines, return_exceptions=True)
         print('Can i do somthing?')

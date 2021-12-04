@@ -8,7 +8,7 @@ def to_json(id, model, status, target, port, charge, products):
             "target_id": target,
             "port": port,
             "charge": charge,
-            "products_ids": products
+            "products": products
     }
     with open('data.json', 'w') as f:
         json.dump(dictionary, f)
